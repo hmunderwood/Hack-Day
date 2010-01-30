@@ -15,16 +15,21 @@
 # limitations under the License.
 #
 
-
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
+from google.appengine.api import urlfetch
+from django.utils import simplejson as json
 
 
 class MainHandler(webapp.RequestHandler):
 
   def get(self):
-    self.response.out.write('Hello world!')
-
+    url = "http://developer.echonest.com/api/alpha_search_tracks?api_key=XRHWHUFCMWU7VLSYI&query=\"romantic\"&heather=true"
+    jstr = urlfetch.fetch(url)
+    pydict = json.loads(jstr.content)
+    for song in pydict['results']:
+      self.response.out.write(song['url']+'<br/>')
+    # self.response.out.write(str(pydict))
 
 def main():
   application = webapp.WSGIApplication([('/', MainHandler)],
