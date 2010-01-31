@@ -1,0 +1,30 @@
+<!-- include SM2 library -->
+<script type="text/javascript" src="/static/soundmanager/script/soundmanager2.js"></script>
+
+<!-- configure it for your use -->
+<script type="text/javascript">
+
+	soundManager.url = '/static/soundmanager/swf/'; // directory where SM2 .SWFs live
+
+	// Note that SounndManager will determine and append the appropriate .SWF file to the URL.
+
+	// disable debug mode after development/testing..
+	soundManager.debugMode = false;
+
+	// Option 2b: More flexible onready + createSound methods (good for multiple use cases)
+
+	soundManager.onready(function(oStatus) {
+	  // check if SM2 successfully loaded..
+	  if (oStatus.success) {
+	    // SM2 has loaded - now you can create and play sounds!
+	    var mySound = soundManager.createSound({
+	      id: 'aSound',
+	      url: 'http://echonest-capsule.s3.amazonaws.com/api_jRSVsUwKfc/1264873778.mp3'
+	      // onload: [ event handler function object ],
+	      // other options here..
+	    });
+	    mySound.play();
+	  }
+	});
+
+</script>

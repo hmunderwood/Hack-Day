@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>My test</title>
+
+<!-- for this page only, make things pretty -->
+<link rel="stylesheet" type="text/css" href="css/demo.css" />
+
+<!-- player core CSS -->
+<link rel="stylesheet" type="text/css" href="css/page-player.css" />
+
+<!-- optional: annotations/sub-tracks/notes, and alternate themes -->
+<link rel="stylesheet" type="text/css" href="css/optional-annotations.css" />
+<link rel="stylesheet" type="text/css" href="css/optional-themes.css" />
+
+<style type="text/css">
+ul.playlist li .comment {font-size:0.65em;opacity:0.5}
+</style>
+<script type="text/javascript" src="/static/soundmanager/script/soundmanager2.js"></script>
+<script src="/static/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript">
+
+/* --------
+
+  Config override: This demo uses shiny flash 9 stuff, overwriting Flash 8-based defaults
+  Alternate PP_CONFIG object must be defined before page-player JS is included/executed.
+  Alternately, edit the config in page-player.js to simply use the values below by default
+
+-------- */
+
+// demo only..
+// soundManager.useHighPerformance = true; // keep flash on screen, boost performance
+soundManager.useFastPolling = true; // increased JS callback frequency
+soundManager.url = '/static/soundmanager/swf/';
+
+var PP_CONFIG = {
+  flashVersion: 9,       // version of Flash to tell SoundManager to use - either 8 or 9. Flash 9 required for peak / spectrum data.
+  usePeakData: true,     // [Flash 9 only] whether or not to show peak data (left/right channel values) - nor noticable on CPU
+  useWaveformData: true, // [Flash 9 only] show raw waveform data - WARNING: LIKELY VERY CPU-HEAVY
+  useEQData: false,      // [Flash 9 only] show EQ (frequency spectrum) data
+  useFavIcon: true,      // try to apply peakData to address bar (Firefox + Opera) - performance note: appears to make Firefox 3 do some temporary, heavy disk access/swapping/garbage collection at first(?)
+  useMovieStar: true     // Flash 9.0r115+ only: Support for a subset of MPEG4 formats.
+}
+
+</script>
+<script type="text/javascript" src="/static/page-player/script/page-player.js"></script>
+</head>
+<body>
+	
+<div id="control-template">
+ <!-- control markup inserted dynamically after each link -->
+ <div class="controls">
+  <div class="statusbar">
+   <div class="loading"></div>
+    <div class="position"></div>
+  </div>
+ </div>
+ <div class="timing">
+  <div id="sm2_timing" class="timing-data">
+   <span class="sm2_position">%s1</span> / <span class="sm2_total">%s2</span></div>
+ </div>
+ <div class="peak">
+  <div class="peak-box"><span class="l"></span><span class="r"></span>
+  </div>
+ </div>
+</div>
+
+<div id="spectrum-container" class="spectrum-container">
+ <div class="spectrum-box">
+  <div class="spectrum"></div>
+ </div>
+</div>
+
+<script type="text/javascript">
+	// script that sets href attr to http://echonest-capsule.s3.amazonaws.com/api_jRSVsUwKfc/1264873778.mp3
+	/* <![CDATA[ */
+		set_player_url = function(url) {
+			$('#mp3-link').attr('href', url);
+			pagePlayer.initDOM();
+		}
+		$(document).ready(function() {
+			$('#test').click(function() {
+				$.ajax({
+					url: "/supa_mix",
+		      type: "POST",
+		      data: ([{query:'romance', artist:'', title:''},{query:'', artist:'Phoenix', title:''},{query:'', artist:'', title:'Avril 14th'}]),
+		      dataType: "json",
+		      success: function(data){
+		        alert(data);
+						set_player_url(data['mp3_url']); //'http://echonest-capsule.s3.amazonaws.com/api_jRSVsUwKfc/1264873778.mp3'
+		      }
+				});
+			});
+		});
+	/* ]]> */
+</script>
+
+<ul class="playlist">
+ <li>
+  <a href="#" id="mp3-link">20 Seconds of Sly</a>
+  <div class="metadata">
+    <!-- total track time (for positioning while loading, until determined -->
+   <ul>
+    <li><p>Beginning</p><span>0:00</span></li> <!-- first scene -->
+    <li><p>20</p><span>0:21</span></li> <!-- start time of second scene -->
+    <li><p>40</p><span>4:00</span></li>
+   </ul>
+  </div>
+ </li>
+</ul>
+
+<br><br><br>
+<a href="#" id="test">Switch URL</a>
+
+</body>
+</html>
