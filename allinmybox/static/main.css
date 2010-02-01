@@ -1,9 +1,43 @@
-div#wrapper
-{
-  text-align:center;
-}
+/* @override http://localhost:8090/static/main.css */
 
-div#instr
-{
+div#wrapper {
+  text-align:center;
+  font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+	color: #626262;
+}
+div#instr {
 	font: 24px "Handwriting - Dakota";
+}
+a#mp3-link {
+	width: 63px;
+	height: 93px;
+	display: block;
+	margin: 10px 10px 15px 10px;
+}
+span.metadata {
+	position: relative;
+	left: 100px;
+	top: 12px;
+	display: block;
+	white-space: nowrap;
+}
+ul.playlist {	
+	display: none;
+}
+a#mp3-link {
+	background: url(../static/play.gif) no-repeat;
+}
+li.sm2_playing a#mp3-link{
+	background: url(../static/pause.gif) no-repeat;
+}
+span#status-message {
+	font-size: 1.5em;
+}
+.draggable { padding: 0px; }
+#droppable { margin-left: auto; margin-right: auto; width: 98%; height: 30px; background: gray; color: white; padding: 5px; }
+#outer_timeline { margin-left: auto; margin-right: auto; width: 98%; height: 40px; background: gray; color: white; padding: 5px; }
+span.draggie-text {font: 14px "Handwriting - Dakota";}
+span.input_titles {font: 20px "Handwriting - Dakota";}
+.draggable {
+	
 }

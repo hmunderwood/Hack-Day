@@ -19,7 +19,9 @@
 		</style>
 		<script type="text/javascript" src="/static/soundmanager/script/soundmanager2.js"></script>
 		<script src="/static/jquery-1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
-
+		<script type="text/javascript" src="/static/ui.core.js"></script>
+	  <script type="text/javascript" src="/static/ui.draggable.js"></script>
+	  <script type="text/javascript" src="/static/ui.droppable.js"></script>
 		<script type="text/javascript">
 
 		/* --------
@@ -48,6 +50,94 @@
 
 		</script>
 		<script type="text/javascript" src="/static/page-player/script/page-player.js"></script>
+		<script type="text/javascript">
+			// script that sets href attr to http://echonest-capsule.s3.amazonaws.com/api_jRSVsUwKfc/1264873778.mp3
+			/* <![CDATA[ */
+				set_player_url = function(url) {
+					$('#mp3-link').attr('href', url);
+					pagePlayer.initDOM();
+					$('ul.playlist').slideDown();
+				}
+				check_status_code = function(url) {
+					$.ajax({
+						url: '/check_status_code',
+			      type: 'GET',
+			      data: ('url='+url),
+			      dataType: "json",
+			      success: function(data){
+			        // alert('status: '+data['status']);
+							if (data['status'] == 200) {
+								$('#loader-image').hide();
+								set_player_url(url);
+								$('#status-message').html('Done!!').fadeOut(5000);
+							}
+							else {
+								setTimeout(function(){
+									// alert('retrying url');
+									check_status_code(url);
+								}, 3000)
+							}
+			      }
+					});
+				}
+				$(document).ready(function() {
+					$('#submit').click(function() {
+						// set_player_url('http://echonest-capsule.s3.amazonaws.com/api_jRSVsUwKfc/1264873778.mp3');
+						
+						var data = '[';
+						
+						$(".draggable").each(function() {
+							data += '{"query":"'+$(this).children("span").html()+'", "position":"'+$(this).position().left+'"},';
+							$(this).hide();
+						});
+						
+						data = data.substring(0, data.length-1)
+						data += ']'
+						
+						// alert(data);
+						
+						$('#submit').hide();
+						$('#search').hide();
+						$('#loader-image').show();
+						$('#status-message').html('Fetching tracks...');
+						$.ajax({
+							url: '/supa_mix',
+										      type: 'POST',
+										      data: (data), // ,{"query":"", "artist":"", "title":"Avril 14th", "duration":"120"}
+										      dataType: "json",
+										      success: function(data){
+								// alert(data['metadata']);
+								$('div.metadata').html(data['metadata']);
+								$('#status-message').html('Hardcore Echo Nest beat-matching action (this takes a while)...');
+										        // alert(data['mp3_url']);
+								var mp3_url = data['mp3_url'];
+								check_status_code(mp3_url);
+							}
+						});
+					});
+			    $("#droppable").droppable({
+			    	drop: function(event, ui) { 
+							$("input#target2").attr("value", "");
+							$("input#target1").attr("value", "");
+							
+							
+						// $("div#container").html($(ui.draggable).html());
+						// 						$(ui.draggable).detach();
+
+				 	}
+			    });
+				
+					$("#target1").change(function() {
+						$("#genre_placeholder").after("<div class='draggable'><img src=\"/static/a.gif\"/><span class='draggie-text'>"+ $("input#target1").attr("value") +"</span></div>");
+						$(".draggable").draggable({ snap: '#snap-target', snapMode: 'inner' });
+					});
+					// $("#target2").change(function() {
+					// 	$("#artist_placeholder").after("<div class='draggable'><img src=\"/static/a.gif\"/><span class='draggie-text'>"+ $("input#target2").attr("value") +"</span></div>");
+					// 	$(".draggable").draggable({ snap: '#snap-target', snapMode: 'inner' });
+					// });
+				});
+			/* ]]> */
+		</script>
 	</head>
 	<body>
 		
@@ -79,78 +169,42 @@
 			<br/><img src="/static/allinmybox.gif" /><br/>
 			
 			<div id="instr">
-				<br/>pick genres, artists, or tracks. drag them into the timeline. hit submit. DANCE.<br/>
+				<br/>Pick genres, artists, or tracks. Drag them into the timeline. Hit submit. DANCE.<br/>
 			</div>
-			
-			
 
-			<script type="text/javascript">
-				// script that sets href attr to http://echonest-capsule.s3.amazonaws.com/api_jRSVsUwKfc/1264873778.mp3
-				/* <![CDATA[ */
-					set_player_url = function(url) {
-						$('#mp3-link').attr('href', url);
-						pagePlayer.initDOM();
-					}
-					check_status_code = function(url) {
-						$.ajax({
-							url: '/check_status_code',
-				      type: 'GET',
-				      data: ('url='+url),
-				      dataType: "json",
-				      success: function(data){
-				        // alert('status: '+data['status']);
-								if (data['status'] == 200) {
-									$('#loader-image').hide();
-									$('#status-message').html('Done!!');
-									set_player_url(url);
-								}
-								else {
-									setTimeout(function(){
-										check_status_code(url);
-									}, 5000)
-								}
-				      }
-						});
-					}
-					$(document).ready(function() {
-						$('#submit').click(function() {
-							// set_player_url('http://echonest-capsule.s3.amazonaws.com/api_jRSVsUwKfc/1264873778.mp3');
-							$('#submit').hide();
-							$('#loader-image').show();
-							$('#status-message').html('Fetching tracks...');
-							$.ajax({
-								url: '/supa_mix',
-					      type: 'POST',
-					      data: ('[{"query":"romance", "artist":"", "title":"", "duration":"120"},{"query":"", "artist":"Phoenix", "title":"", "duration":"120"}]'), // ,{"query":"", "artist":"", "title":"Avril 14th", "duration":"120"}
-					      dataType: "json",
-					      success: function(data){
-									$('#status-message').html('Hardcore Echo Nest beat-matching action...(this takes a while)');
-					        // alert(data['mp3_url']);
-									var mp3_url = data['mp3_url'];
-									check_status_code('http://echonest-capsule.s3.amazonaws.com/api_jRSVsUwKfc/1264873778.mp3'); // switch to mp3_url
-								}
-							});
-						});
-					});
-				/* ]]> */
-			</script>
-
+			<br/>
 			<ul class="playlist">
 			 <li>
-			  <a href="#" id="mp3-link">mp3 Playa</a>
+			  <a href="#" id="mp3-link" class="play-button"></a>
 			  <div class="metadata">
-			    <!-- total track time (for positioning while loading, until determined -->
-			   <ul>
-			    <li><p>Beginning</p><span>0:00</span></li> <!-- first scene -->
-			    <li><p>20</p><span>0:21</span></li> <!-- start time of second scene -->
-			    <li><p>40</p><span>4:00</span></li>
-			   </ul>
 			  </div>
 			 </li>
 			</ul>
+		
+			<div id="genre_wrapper">
+				<span id="genre_placeholder"></span>
+			</div>
+			<div id="artist_wrapper">
+				<span id="artist_placeholder"></span>
+			</div>
+			
+			{# <div id="outer_timeline"> #}
+			{# 	<div id="snap-target" class="droppable"> #}
+			{# 	</div> #}
+			{# </div> #}
+			
+			{# <form> #}
+			  <div id="search">
+			  	<span class="input_titles">Query (be creative): </span><input id="target1" type="text" />
+			  </div>
+			{# </form> #}
 
+			{# <form> #}
+			{#   <span class="input_titles">Artist: </span><input id="target2" type="text" /> #}
+			{# </form> #}
+			
 			<br><br><br>
-			<a href="#" id="submit">Submit!!</a>
+			<a href="#" id="submit"><img src="/static/submit.gif" width="200" height="71" alt="Submit"></a>
 			<img id="loader-image" src="/static/ajax-loader.gif" width="16" height="16" alt="Ajax Loader" style="display:none;"/><br/>
 			<span id="status-message"></span>
 			

@@ -19,7 +19,7 @@ ul.use-spectrum li.sm2_playing .spectrum-container {
  margin-left:-266px;
  margin-top:-1px;
  display:block;
- background-color:#5588bb;
+ background-color:#424459;
  border:1px solid #99ccff;
  -moz-border-radius:4px;
  -webkit-border-radius:4px;
@@ -62,7 +62,7 @@ ul.playlist li {
  width:auto;
  font-size:2em;
  color:#666;
- padding:0.25em 0.5em 0.25em 0.5em;
+ padding:0.55em 0.5em 0.55em 0.5em;
  border:none;
  letter-spacing:-1px; /* ZOMG WEB X.0. ;) */
  background-color:#f9f9f9;
@@ -100,11 +100,11 @@ ul.playlist li:hover a {
 
 ul.playlist li.sm2_playing,
 ul.playlist li.sm2_playing:hover {
- background-color:#6699cc;
+ background-color: #2d00f0;
 }
 
 ul.playlist li.sm2_paused {
- background-color:#999;
+ background-color: #dadddd;
 }
 
 ul.playlist li.sm2_playing:hover a,
@@ -190,8 +190,8 @@ ul.playlist li .controls .statusbar .annotation {
 }
 
 ul.playlist li .controls .statusbar .position {
- background-color:#336699;
- border-right:3px solid #336699;
+ background-color: #424459;
+ border-right:3px solid #424459;
  border-radius:3px;
  -moz-border-radius:3px;
  -webkit-border-radius:3px;
@@ -225,7 +225,7 @@ ul.playlist li .timing {
  width:auto;
  height:1em;
  padding:3px 5px;
- background-color:#5588bb;
+ background-color:#424459;
  border:1px solid #99ccff;
  -moz-border-radius:4px;
  -khtml-border-radius:4px;
@@ -278,7 +278,7 @@ ul.playlist.use-peak li .peak {
  -moz-border-radius:4px;
  -khtml-border-radius:4px;
  border-radius:4px;
- background-color:#5588bb;
+ background-color:#424459;
  width:0.8em;
  height:0.55em;
  margin-top:-3px;

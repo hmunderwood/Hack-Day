@@ -31,7 +31,8 @@ import logging
 import random
 from google.appengine.ext import db
 
-DURATION = 2
+DURATION = 120 # (in seconds, should be an integer)
+TRANSITION = 10 # (in seconds, should be an integer)
 
 class Spiff(db.Model):
   body = db.TextProperty()
@@ -112,40 +113,55 @@ class MainHandler(HandlerBase):
 class SupaMixHandler(HandlerBase):
   
   def post(self):
-    song_urls = []
     lady_data = self.request.body
     logging.info(self.request.body)
     chunks = json.loads(lady_data)
+    from operator import itemgetter
+    chunks.sort(key = itemgetter('position'))
+    songs = []
     for chunk in chunks:
       # parse chunk to get parameters
       q = chunk['query']
-      a = chunk['artist']
-      t = chunk['title']
-      d = int(chunk['duration'])
+      # a = chunk['artist']
+      # t = chunk['title']
+      p = int(chunk['position'])
       
       # possible cases: query and duration, artist, title, artist and title, artist and duration
     
       # put parameters in url unless they are blank strings
-      url = "http://developer.echonest.com/api/alpha_search_tracks?api_key=XRHWHUFCMWU7VLSYI&query='%s'&artist='%s'&title='%s'&heather=true" % (q, a, t)
+      url = "http://developer.echonest.com/api/alpha_search_tracks?api_key=XRHWHUFCMWU7VLSYI&query='%s'&heather=true" % (q)
       # fetch the url to get back json string of results
-      jstr = urlfetch.fetch(url)
+      jstr = urlfetch.fetch(url).content
+      
       # turn json string into python dictionary of song urls => dict_job
-      dict_job = json.loads(jstr.content)['results']
+      dict_job = json.loads(jstr)['results']
       # logging.info(str(dict_job))
       # do a randomization of which songs to pick and how many based on the duration parameter
-      if d:
-        # the smallest d can be is DURATION
-        num_songs = d / DURATION
-      for i in range(1):
+      # if d:
+      #   # the smallest d can be is DURATION
+      #   num_songs = d / (DURATION*60)
+      for i in range(2):
         index = random.randint(0,len(dict_job)-1)
-        song_urls.append(dict_job[index]['url'])
+        songs.append(dict_job[index])
       
     # outside the for loop create spiff file from song_urls array
-    spiff = self.render_and_store('spiff.xml', {'urls':song_urls})
+    spiff = self.render_and_store('spiff.xml', {'songs':songs})
     spiff_url = 'http://' + self.request.host + '/spiff/' + str(spiff.key().id()) + '.xspf'
-    son = urlfetch.fetch('http://developer.echonest.com/api/alpha_capsule?api_key=XRHWHUFCMWU7VLSYI&xspf_url=' + spiff_url)
+    logging.info(spiff_url)
+    capsule_data = json.loads(urlfetch.fetch('http://developer.echonest.com/api/alpha_capsule?api_key=XRHWHUFCMWU7VLSYI&transition='+str(TRANSITION)+'&duration='+str(DURATION)+'&xspf_url=' + spiff_url).content)
+    # capsule_data = json.loads('{"flash_url": "http://thisismyjam.com/flash/jam.swf?api_Cv55AXfDsJ/1264931959.xml", "tag": "api_Cv55AXfDsJ", "mp3_url": "http://echonest-capsule.s3.amazonaws.com/api_Cv55AXfDsJ/1264931959.mp3"}')
+    metadata = '<ul>'
+    import time
+    import datetime
+    delta = datetime.timedelta(seconds=0)
+    for s in songs:
+      metadata += '<li><p>%s, by %s</p><span>%s</span></li>' % (s['title'], s['artist'], time.strftime("%M:%S",time.gmtime(delta.seconds)))
+      delta += datetime.timedelta(seconds=(DURATION-(TRANSITION+1)))
+    metadata += '<li><p>end</p><span>60:00</span></li>'
+    metadata += '</ul>'
+    capsule_data['metadata'] = metadata
     logging.info('http://developer.echonest.com/api/alpha_capsule?api_key=XRHWHUFCMWU7VLSYI&xspf_url=' + spiff_url)
-    self.response.out.write(son.content)
+    self.response.out.write(json.dumps(capsule_data))
     
 class SpiffHandler(webapp.RequestHandler):
   def get(self, spiff_id):
@@ -153,7 +169,7 @@ class SpiffHandler(webapp.RequestHandler):
     
 class StatusCodeHandler(webapp.RequestHandler):
   def get(self):
-    self.response.out.write(json.dumps({'status':urlfetch.fetch(self.request.get('url')).status_code}))
+    self.response.out.write(json.dumps({'status':urlfetch.fetch(self.request.get('url'), method='HEAD').status_code}))
 
 def main():
   application = webapp.WSGIApplication([

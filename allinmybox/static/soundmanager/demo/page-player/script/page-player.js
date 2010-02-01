@@ -417,7 +417,7 @@ function PagePlayer(oConfigOverride) {
     }
     if (index != metadata.currentItem) {
       // update
-      oSound._data.oLink.innerHTML = metadata.mainTitle+' <span class="metadata"><span class="sm2_divider"> | </span><span class="sm2_metadata">'+metadata[index].title+'</span></span>';
+      oSound._data.oLink.innerHTML = metadata.mainTitle+' <span class="metadata">'+metadata[index].title+'sdfsdf</span>'; // <span class="sm2_divider"> | </span>
       self.setPageTitle(metadata[index].title+' | '+metadata.mainTitle);
       metadata.currentItem = index;
     }
